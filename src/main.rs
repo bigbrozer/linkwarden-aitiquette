@@ -29,13 +29,9 @@ struct Args {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
 
-    let args = Args::parse();
+    info!("Starting linkwarden-aitiquette 🚀");
 
-    info!(
-        "Connecting to Linkwarden instance: {}",
-        args.linkwarden_base_url
-    );
-    info!("Connecting to OpenAI endpoint: {}", args.openai_endpoint);
+    let args = Args::parse();
 
     let lw: Linkwarden = Linkwarden::new(
         String::from("https://link.vinzworld.fr"),

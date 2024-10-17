@@ -1,4 +1,4 @@
-use log::{debug, trace};
+use log::{debug, info, trace};
 use openai_api_rs::v1::api::OpenAIClient;
 use openai_api_rs::v1::{
     chat_completion::{ChatCompletionRequest, ChatCompletionResponse},
@@ -25,6 +25,8 @@ impl Linkwarden {
         openai_endpoint: String,
         openai_key: String,
     ) -> Linkwarden {
+        info!("Using Linkwarden instance: {}", base_url);
+        info!("Using OpenAI endpoint: {}", openai_endpoint);
         Linkwarden {
             client: Client::new(),
             openai_client: OpenAIClient::new_with_endpoint(openai_endpoint, openai_key),
