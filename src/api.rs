@@ -73,6 +73,7 @@ impl Linkwarden {
                 name: link["name"].to_string(),
                 url: link["url"].to_string(),
                 text_content: link["textContent"].to_string(),
+                tags: link["tags"].as_array().unwrap().to_vec(),
             });
         }
         trace!("{:#?}", links);
@@ -102,9 +103,10 @@ impl Linkwarden {
 
 #[derive(Serialize, Debug)]
 pub struct Link {
-    id: i64,
+    pub id: i64,
     pub name: String,
     pub url: String,
     #[serde(rename = "textContent")]
     pub text_content: String,
+    pub tags: Vec<JsonValue>,
 }
