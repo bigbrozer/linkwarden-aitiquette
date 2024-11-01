@@ -47,7 +47,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("This instance has {} links.", all_links.len());
     let link_summary: String = lw.summarize(&all_links[0]).await.unwrap();
     debug!("Summary:\n{}", link_summary);
-    debug!("Tags: {:?}", lw.tag(&all_links[0], link_summary).await);
+    let tags: Vec<String> = lw.tag(&all_links[0], link_summary).await.unwrap();
+    debug!("Tags: {:?}", tags);
 
     Ok(())
 }

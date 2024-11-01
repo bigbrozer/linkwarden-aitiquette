@@ -4,6 +4,24 @@ A Rust app for auto-labelling links in [Linkwarden](https://linkwarden.app/) usi
 
 *THIS IS CURRENTLY A WORK IN PROGRESS...*
 
+## Implementation
+
+To update tags for a link, here is the minimal request body:
+
+```json
+{
+    "collection": {
+        "id": 1,
+        "ownerId": 1
+    },
+    "tags": [
+        {
+            "name": "test"
+        }
+    ]
+}
+```
+
 ## Next steps
 
 This is a list of features I would like to implement:

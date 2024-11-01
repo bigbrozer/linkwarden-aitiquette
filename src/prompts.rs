@@ -24,7 +24,7 @@ Please analyze the text and suggest relevant tags that describe its key themes, 
 - The content can include text for cookie consent and privacy policy, ignore those while tagging.
 - Aim for 3-5 short and concise tags.
 - If there are no good tags, leave the array empty.
-You must respond as a single line JSON string (do not add extra lines) with the key "tags" and the value is an array of string tags."#.to_string()),
+You must respond as a single line JSON string (do not add extra lines) which is an array of string tags."#.to_string()),
         name: None,
         tool_calls: None,
         tool_call_id: None,
@@ -36,7 +36,7 @@ pub fn for_link(link: &Link) -> ChatCompletionMessage {
         role: MessageRole::user,
         content: Content::Text(format!(
             "{}\n{}\n{}",
-            link.name, link.url, link.text_content
+            link.name, link.url, link.text_content.as_deref().unwrap_or_default()
         )),
         name: None,
         tool_calls: None,

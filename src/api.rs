@@ -3,7 +3,7 @@ use log::{debug, trace};
 use openai_api_rs::v1::api::OpenAIClient;
 use openai_api_rs::v1::chat_completion::{ChatCompletionRequest, ChatCompletionResponse};
 use reqwest::{Client, RequestBuilder, Response};
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
 use crate::prompts;
@@ -38,7 +38,7 @@ impl Linkwarden {
 
         let response: Response = match request.send().await?.error_for_status() {
             Ok(resp) => {
-                 debug!("Got response from Linkwarden: {:?}", resp);
+                 trace!("Got response from Linkwarden: {:?}", resp);
                  resp
             },
              Err(err) => {
@@ -74,15 +74,12 @@ impl Linkwarden {
         }
 
         for link in json_links {
-            links.push(Link {
-                id: link["id"].as_i64().unwrap(),
-                name: link["name"].to_string(),
-                url: link["url"].to_string(),
-                text_content: link["textContent"].to_string(),
-                tags: link["tags"].as_array().unwrap().to_vec(),
-            });
+            trace!("Raw link: {:#?}", link);
+            let convert_to_link: Link = serde_json::from_value(link)?;
+            trace!("Serialized link: {:#?}", convert_to_link);
+            links.push(convert_to_link);
         }
-        trace!("{:#?}", links);
+
         Ok(links)
     }
 
@@ -91,13 +88,13 @@ impl Linkwarden {
             "llama3.2:3b".to_string(),
             vec![prompts::build_summary(), prompts::for_link(link)],
         )
-        .temperature(0.2);
+        .temperature(0.0);
 
         let result: ChatCompletionResponse = match self.openai_client.chat_completion(req).await {
             Ok(result) => result,
             Err(error) => return Err(anyhow!("Error from OpenAI: {}", error)),
         };
-        debug!("[ID: {}] OpenAI results: {:?}", link.id, result);
+        trace!("Summary for link id: {}. Results: {:?}", link.id, result);
 
         let response: String = result.choices[0].message.content
             .clone().expect("Unexpected error: empty response from OpenAI !");
@@ -105,32 +102,42 @@ impl Linkwarden {
         Ok(response)
     }
 
-    pub async fn tag(&self, link: &Link, summary: String) -> Result<String> {
+    pub async fn tag(&self, link: &Link, summary: String) -> Result<Vec<String>> {
         let req = ChatCompletionRequest::new(
             "llama3.2:3b".to_string(),
             vec![prompts::build_tagging(), prompts::for_link_with_summary(link, summary)],
         )
-        .temperature(0.1);
+        .temperature(0.0);
 
         let result: ChatCompletionResponse = match self.openai_client.chat_completion(req).await {
             Ok(result) => result,
             Err(error) => return Err(anyhow!("Error from OpenAI: {}", error)),
         };
-        debug!("[ID: {}] OpenAI results: {:?}", link.id, result);
+        trace!("Tags for link id: {}. Results: {:?}", link.id, result);
 
         let response: String = result.choices[0].message.content
             .clone().expect("Unexpected error: empty response from OpenAI !");
+        let tags: Vec<String> = serde_json::from_str(&response).expect("Unexpected error: invalid JSON from OpenAI !");
 
-        Ok(response)
+        Ok(tags)
     }
 }
 
-#[derive(Serialize, Debug)]
+#[derive(Deserialize, Serialize, Debug)]
 pub struct Link {
     pub id: i64,
     pub name: String,
     pub url: String,
     #[serde(rename = "textContent")]
-    pub text_content: String,
+    pub text_content: Option<String>,
+    pub collection: Collection,
     pub tags: Vec<JsonValue>,
+}
+
+#[derive(Deserialize, Serialize, Debug)]
+pub struct Collection {
+    id: i64,
+    #[serde(rename = "ownerId")]
+    owner_id: i64,
+    name: String,
 }
