@@ -29,22 +29,25 @@ struct Args {
 async fn main() -> Result<(), Box<dyn std::error::Error>> {
     env_logger::init();
 
-    info!("Starting linkwarden-aitiquette 🚀");
-
     let args = Args::parse();
 
+    info!("Starting linkwarden-aitiquette 🚀");
+    info!("Linkwarden instance: {}", args.linkwarden_base_url);
+    info!("OpenAI endpoint: {}", args.openai_endpoint);
+
     let lw: Linkwarden = Linkwarden::new(
-        String::from("https://link.vinzworld.fr"),
+        args.linkwarden_base_url,
         args.linkwarden_token,
         args.openai_endpoint,
         args.openai_key,
     );
 
     info!("Fetching all links from the instance... please wait.");
-    let all_links: Vec<Link> = lw.get_all_links().await;
+    let all_links: Vec<Link> = lw.get_all_links().await.unwrap();
     info!("This instance has {} links.", all_links.len());
-    debug!("Content: {:?}", lw.summarize(&all_links[5]).await.unwrap());
-    debug!("Content: {:?}", lw.tag(&all_links[5]).await.unwrap());
+    let link_summary: String = lw.summarize(&all_links[0]).await.unwrap();
+    debug!("Summary:\n{}", link_summary);
+    debug!("Tags: {:?}", lw.tag(&all_links[0], link_summary).await);
 
     Ok(())
 }
