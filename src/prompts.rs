@@ -3,17 +3,17 @@ use openai_api_rs::v1::chat_completion::{ChatCompletionMessage, Content, Message
 use crate::api::Link;
 
 pub fn build_summary() -> ChatCompletionMessage {
-    return ChatCompletionMessage {
+    ChatCompletionMessage {
         role: MessageRole::system,
         content: Content::Text("You are a summary bot. You must answer with a very short summary (5-10 lines). Use french language. Do not introduce what you will do.".to_string()),
         name: None,
         tool_calls: None,
         tool_call_id: None,
-    };
+    }
 }
 
 pub fn build_tagging() -> ChatCompletionMessage {
-    return ChatCompletionMessage {
+    ChatCompletionMessage {
         role: MessageRole::system,
         content: Content::Text(r#"
 You are a bot in a read-it-later app and your responsibility is to help with automatic tagging.
@@ -28,31 +28,30 @@ You must respond as a single line JSON string (do not add extra lines) which is 
         name: None,
         tool_calls: None,
         tool_call_id: None,
-    };
+    }
 }
 
 pub fn for_link(link: &Link) -> ChatCompletionMessage {
-    return ChatCompletionMessage {
+    ChatCompletionMessage {
         role: MessageRole::user,
         content: Content::Text(format!(
             "{}\n{}\n{}",
-            link.name, link.url, link.text_content.as_deref().unwrap_or_default()
+            link.name,
+            link.url,
+            link.text_content.as_deref().unwrap_or_default()
         )),
         name: None,
         tool_calls: None,
         tool_call_id: None,
-    };
+    }
 }
 
 pub fn for_link_with_summary(link: &Link, summary: String) -> ChatCompletionMessage {
-    return ChatCompletionMessage {
+    ChatCompletionMessage {
         role: MessageRole::user,
-        content: Content::Text(format!(
-            "{}\n{}\n{}",
-            link.name, link.url, summary
-        )),
+        content: Content::Text(format!("{}\n{}\n{}", link.name, link.url, summary)),
         name: None,
         tool_calls: None,
         tool_call_id: None,
-    };
+    }
 }

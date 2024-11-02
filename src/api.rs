@@ -38,11 +38,14 @@ impl Linkwarden {
 
         let response: Response = match request.send().await?.error_for_status() {
             Ok(resp) => {
-                 trace!("Got response from Linkwarden: {:?}", resp);
-                 resp
-            },
-             Err(err) => {
-                return Err(anyhow!(format!("Error getting links at cursor {}: {}", cursor, err)));
+                trace!("Got response from Linkwarden: {:?}", resp);
+                resp
+            }
+            Err(err) => {
+                return Err(anyhow!(format!(
+                    "Error getting links at cursor {}: {}",
+                    cursor, err
+                )));
             }
         };
 
@@ -96,8 +99,11 @@ impl Linkwarden {
         };
         trace!("Summary for link id: {}. Results: {:?}", link.id, result);
 
-        let response: String = result.choices[0].message.content
-            .clone().expect("Unexpected error: empty response from OpenAI !");
+        let response: String = result.choices[0]
+            .message
+            .content
+            .clone()
+            .expect("Unexpected error: empty response from OpenAI !");
 
         Ok(response)
     }
@@ -105,7 +111,10 @@ impl Linkwarden {
     pub async fn tag(&self, link: &Link, summary: String) -> Result<Vec<String>> {
         let req = ChatCompletionRequest::new(
             "llama3.2:3b".to_string(),
-            vec![prompts::build_tagging(), prompts::for_link_with_summary(link, summary)],
+            vec![
+                prompts::build_tagging(),
+                prompts::for_link_with_summary(link, summary),
+            ],
         )
         .temperature(0.0);
 
@@ -115,9 +124,13 @@ impl Linkwarden {
         };
         trace!("Tags for link id: {}. Results: {:?}", link.id, result);
 
-        let response: String = result.choices[0].message.content
-            .clone().expect("Unexpected error: empty response from OpenAI !");
-        let tags: Vec<String> = serde_json::from_str(&response).expect("Unexpected error: invalid JSON from OpenAI !");
+        let response: String = result.choices[0]
+            .message
+            .content
+            .clone()
+            .expect("Unexpected error: empty response from OpenAI !");
+        let tags: Vec<String> =
+            serde_json::from_str(&response).expect("Unexpected error: invalid JSON from OpenAI !");
 
         Ok(tags)
     }
