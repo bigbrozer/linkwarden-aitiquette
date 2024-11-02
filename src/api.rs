@@ -1,9 +1,10 @@
+use crate::models::Link;
+
 use anyhow::{anyhow, Result};
 use log::{debug, trace};
 use openai_api_rs::v1::api::OpenAIClient;
 use openai_api_rs::v1::chat_completion::{ChatCompletionRequest, ChatCompletionResponse};
 use reqwest::{Client, RequestBuilder, Response};
-use serde::{Deserialize, Serialize};
 use serde_json::Value as JsonValue;
 
 use crate::prompts;
@@ -16,14 +17,13 @@ pub struct Linkwarden {
 }
 
 impl Linkwarden {
-    /// Constructor
     pub fn new(
         base_url: String,
         token: String,
         openai_endpoint: String,
         openai_key: String,
-    ) -> Linkwarden {
-        Linkwarden {
+    ) -> Self {
+        Self {
             client: Client::new(),
             openai_client: OpenAIClient::new_with_endpoint(openai_endpoint, openai_key),
             base_url,
@@ -31,7 +31,6 @@ impl Linkwarden {
         }
     }
 
-    /// Get links at a cursor
     pub async fn get_links_at_cursor(&self, cursor: i64) -> Result<Vec<JsonValue>> {
         let url: String = format!("{}/api/v1/links?cursor={}&sort=1", self.base_url, cursor);
         let request: RequestBuilder = self.client.get(url).bearer_auth(&self.token);
@@ -58,7 +57,6 @@ impl Linkwarden {
         Ok(json_output)
     }
 
-    /// Get all links from the instance
     pub async fn get_all_links(&self) -> Result<Vec<Link>> {
         let mut json_links: Vec<JsonValue> = Vec::new();
         let mut links: Vec<Link> = Vec::new();
@@ -134,23 +132,4 @@ impl Linkwarden {
 
         Ok(tags)
     }
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Link {
-    pub id: i64,
-    pub name: String,
-    pub url: String,
-    #[serde(rename = "textContent")]
-    pub text_content: Option<String>,
-    pub collection: Collection,
-    pub tags: Vec<JsonValue>,
-}
-
-#[derive(Deserialize, Serialize, Debug)]
-pub struct Collection {
-    id: i64,
-    #[serde(rename = "ownerId")]
-    owner_id: i64,
-    name: String,
 }

@@ -1,6 +1,6 @@
 use openai_api_rs::v1::chat_completion::{ChatCompletionMessage, Content, MessageRole};
 
-use crate::api::Link;
+use crate::models::Link;
 
 pub fn build_summary() -> ChatCompletionMessage {
     ChatCompletionMessage {

@@ -1,10 +1,12 @@
 mod api;
+mod models;
 mod prompts;
 
 use clap::Parser;
 use log::{debug, info};
 
-use crate::api::{Link, Linkwarden};
+use crate::api::Linkwarden;
+use crate::models::Link;
 
 #[derive(Parser, Debug)]
 struct Args {
