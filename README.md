@@ -31,3 +31,4 @@ This is a list of features I would like to implement:
 - [ ] Add support for more AI models (e.g. GPT-3, BLOOM, etc.)
 - [ ] Customize prompts.
 - [ ] Temperature control for prompts.
+- [ ] Do not load and store all links at once for large instances. Study Iterators.
