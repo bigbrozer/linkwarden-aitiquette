@@ -1,4 +1,6 @@
-# Linkwarden API
+# Linkwarden Aitiquette
+
+> The noun *aitiquette* is the combination of *ai* (artificial intelligence) and *étiquette* (the french word for *label*).
 
 A Rust app for auto-labelling links in [Linkwarden](https://linkwarden.app/) using any [OpenAI](https://openai.com/) compatible APIs (works with [Ollama](https://github.com/ollama/ollama)).
 
