@@ -22,7 +22,10 @@ pub fn build_tagging() -> ChatCompletionMessage {
 You are a bot in a read-it-later app and your responsibility is to help with automatic tagging.
 Please analyze the text and suggest relevant tags that describe its key themes, topics, and main ideas. Follow strictly the following rules:
 - Aim for a variety of tags, including broad categories, specific keywords, and potential sub-genres.
-- Write tags in french.
+- Write tags in english.
+- Use lower case.
+- Try to restrict tag to one word.
+- If it is a brand or a well-known topic you may also include a tag for it.
 - If it's a famous website you may also include a tag for the website. If the tag is not generic enough, don't include it.
 - The content can include text for cookie consent and privacy policy, ignore those while tagging.
 - Aim for 3-5 short and concise tags.
@@ -49,7 +52,7 @@ pub fn for_link(link: &Link) -> ChatCompletionMessage {
     }
 }
 
-pub fn for_link_with_summary(link: &Link, summary: String) -> ChatCompletionMessage {
+pub fn for_link_with_summary(link: &Link, summary: &String) -> ChatCompletionMessage {
     ChatCompletionMessage {
         role: MessageRole::user,
         content: Content::Text(format!("{}\n{}\n{}", link.name, link.url, summary)),
