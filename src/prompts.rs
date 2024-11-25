@@ -5,7 +5,10 @@ use crate::models::Link;
 pub fn build_summary() -> ChatCompletionMessage {
     ChatCompletionMessage {
         role: MessageRole::system,
-        content: Content::Text("You are a summary bot. You must answer with a very short summary (5-10 lines). Use french language. Do not introduce what you will do.".to_string()),
+        content: Content::Text(
+            "You receive complete article content as input. You must condense it to 1-3 sentences maximum. Only return the answer."
+                .to_string(),
+        ),
         name: None,
         tool_calls: None,
         tool_call_id: None,
