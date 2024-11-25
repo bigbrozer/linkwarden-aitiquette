@@ -14,6 +14,7 @@ pub struct Linkwarden {
     openai_client: OpenAIClient,
     base_url: String,
     token: String,
+    openai_model_name: String,
 }
 
 impl Linkwarden {
@@ -22,12 +23,14 @@ impl Linkwarden {
         token: String,
         openai_endpoint: String,
         openai_key: String,
+        openai_model_name: String,
     ) -> Self {
         Self {
             client: Client::new(),
             openai_client: OpenAIClient::new_with_endpoint(openai_endpoint, openai_key),
             base_url,
             token,
+            openai_model_name,
         }
     }
 
@@ -86,7 +89,7 @@ impl Linkwarden {
 
     pub async fn summarize(&self, link: &Link) -> Result<String> {
         let req = ChatCompletionRequest::new(
-            "llama3.2:3b".to_string(),
+            self.openai_model_name.clone(),
             vec![prompts::build_summary(), prompts::for_link(link)],
         )
         .temperature(0.0);
@@ -106,9 +109,9 @@ impl Linkwarden {
         Ok(response)
     }
 
-    pub async fn tag(&self, link: &Link, summary: String) -> Result<Vec<String>> {
+    pub async fn tag(&self, link: &Link, summary: &String) -> Result<Vec<String>> {
         let req = ChatCompletionRequest::new(
-            "llama3.2:3b".to_string(),
+            self.openai_model_name.clone(),
             vec![
                 prompts::build_tagging(),
                 prompts::for_link_with_summary(link, summary),
