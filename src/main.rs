@@ -2,11 +2,12 @@ mod api;
 mod models;
 mod prompts;
 
-use clap::Parser;
-use log::{debug, info};
-
 use crate::api::Linkwarden;
 use crate::models::Link;
+use clap::Parser;
+use log::{debug, info};
+use std::sync::Arc;
+use tokio::sync::Semaphore;
 
 #[derive(Parser, Debug)]
 struct Args {
@@ -37,20 +38,41 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     info!("Linkwarden instance: {}", args.linkwarden_base_url);
     info!("OpenAI endpoint: {}", args.openai_endpoint);
 
-    let lw: Linkwarden = Linkwarden::new(
+    let lw: Arc<Linkwarden> = Arc::new(Linkwarden::new(
         args.linkwarden_base_url,
         args.linkwarden_token,
         args.openai_endpoint,
         args.openai_key,
-    );
+    ));
+
+    let permits: Arc<Semaphore> = Arc::new(Semaphore::new(3));
 
     info!("Fetching all links from the instance... please wait.");
-    let all_links: Vec<Link> = lw.get_all_links().await.unwrap();
+    let mut all_links: Vec<Link> = lw.get_all_links().await.unwrap();
     info!("This instance has {} links.", all_links.len());
-    let link_summary: String = lw.summarize(&all_links[0]).await.unwrap();
-    debug!("Summary:\n{}", link_summary);
-    let tags: Vec<String> = lw.tag(&all_links[0], link_summary).await.unwrap();
-    debug!("Tags: {:?}", tags);
+    all_links.truncate(5);
+
+    let mut jhs = Vec::new();
+    for link in all_links {
+        let permits = permits.clone();
+        let lw = lw.clone();
+
+        let jh = tokio::spawn(async move {
+            let _permit = permits.acquire().await.unwrap();
+            info!("Preparing summary for link: {}", link.url);
+            let summary: String = lw.summarize(&link).await.unwrap();
+            drop(_permit);
+            summary
+        });
+        jhs.push(jh);
+    }
+
+    for jh in jhs {
+        debug!("Summary: {}", jh.await.unwrap());
+    }
+
+    // let tags: Vec<String> = lw.tag(&all_links[0], link_summary).await.unwrap();
+    // debug!("Tags: {:?}", tags);
 
     Ok(())
 }
