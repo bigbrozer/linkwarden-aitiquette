@@ -30,6 +30,10 @@ struct Args {
     /// The name of the model to use for tagging
     #[arg(short = 'm', long, default_value_t = String::from("llama3.2:3b"), env)]
     openai_model_name: String,
+
+    /// The language to use for tags
+    #[arg(short = 'l', long, default_value_t = String::from("english"), env)]
+    language: String,
 }
 
 #[tokio::main]
@@ -49,6 +53,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
         args.openai_endpoint,
         args.openai_key,
         args.openai_model_name,
+        args.language,
     ));
 
     let permits: Arc<Semaphore> = Arc::new(Semaphore::new(3));
@@ -74,7 +79,8 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     }
 
     for jh in jhs {
-        debug!("Summary: {:?}", jh.await.unwrap());
+        let results: (String, Vec<String>) = jh.await.unwrap();
+        debug!("Summary: {:?}\nTags: {:?}", results.0, results.1);
     }
 
     Ok(())

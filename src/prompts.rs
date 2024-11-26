@@ -2,33 +2,40 @@ use openai_api_rs::v1::chat_completion::{ChatCompletionMessage, Content, Message
 
 use crate::models::Link;
 
-pub fn build_summary() -> ChatCompletionMessage {
+pub fn build_summary(language: &String) -> ChatCompletionMessage {
     ChatCompletionMessage {
         role: MessageRole::system,
-        content: Content::Text(
-            "You receive complete article content as input. Translate all content to french and you must describe it to 1-3 sentences maximum. Only return the translated content without explanations or introduction."
-                .to_string(),
-        ),
+        content: Content::Text(format!(
+            r#"
+Describe the content after "====" following strictly the rules:
+- Write content as {language} language.
+- Do not exceed 3 sentences.
+- Do not introduce the content.
+====
+"#
+        )),
         name: None,
         tool_calls: None,
         tool_call_id: None,
     }
 }
 
-pub fn build_tagging() -> ChatCompletionMessage {
+pub fn build_tagging(language: &String) -> ChatCompletionMessage {
     ChatCompletionMessage {
         role: MessageRole::system,
-        content: Content::Text(r#"
+        content: Content::Text(format!(
+            r#"
 You are a bot in a read-it-later app and your responsibility is to help with automatic tagging.
 Please analyze the text and suggest relevant tags that describe its key themes, topics, and main ideas. Follow strictly the following rules:
 - Aim for a variety of tags, including broad categories, specific keywords, popular nouns, brands and potential sub-genres.
-- Write tags in french.
+- Write tags in {language}.
 - Use lower case.
 - Try to restrict tag to one word.
 - The content can include text for cookie consent and privacy policy, ignore those while tagging.
 - Aim for 3-5 short and concise tags.
 - If there are no good tags, leave the array empty.
-You must respond as a single line JSON string (do not add extra lines) which is an array of string tags."#.to_string()),
+You must respond as a single line JSON string (do not add extra lines) which is an array of string tags."#
+        )),
         name: None,
         tool_calls: None,
         tool_call_id: None,
