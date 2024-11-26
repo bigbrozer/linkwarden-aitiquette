@@ -11,11 +11,11 @@ use crate::prompts;
 
 pub struct Linkwarden {
     client: Client,
-    openai_client: OpenAIClient,
-    base_url: String,
+    pub openai_client: OpenAIClient,
+    pub base_url: String,
     token: String,
-    openai_model_name: String,
-    language: String,
+    pub openai_model_name: String,
+    pub language: String,
 }
 
 impl Linkwarden {
@@ -98,7 +98,7 @@ impl Linkwarden {
                 prompts::for_link(link),
             ],
         )
-        .temperature(0.0);
+        .temperature(0.8);
 
         let result: ChatCompletionResponse = match self.openai_client.chat_completion(req).await {
             Ok(result) => result,
@@ -123,7 +123,7 @@ impl Linkwarden {
                 prompts::for_link_with_summary(link, summary),
             ],
         )
-        .temperature(0.5);
+        .temperature(0.0);
 
         let result: ChatCompletionResponse = match self.openai_client.chat_completion(req).await {
             Ok(result) => result,
