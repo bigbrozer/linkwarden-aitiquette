@@ -1,3 +1,6 @@
+---
+# Archived: I have moved from Linkwarden to [Karakeep]([url](https://github.com/karakeep-app/karakeep)). I plan to continue this to improve the tagging with a RAG.
+---
 # Aitiquette
 
 Aitiquette is a Rust app for auto-labelling links in [Linkwarden](https://linkwarden.app/) using any [OpenAI](https://openai.com/) compatible APIs (works with [Ollama](https://github.com/ollama/ollama)).
